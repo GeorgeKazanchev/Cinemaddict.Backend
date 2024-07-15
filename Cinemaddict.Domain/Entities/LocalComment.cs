@@ -2,13 +2,15 @@
 {
     public class LocalComment
     {
-        public LocalComment(string content, DateTime date)  //  TODO: Add CommentEmotion
+        public LocalComment(string content, DateTime date, string emotion)
         {
             Content = content;
             Date = date;
+            Emotion = emotion;
         }
 
         public string Content { get; }
         public DateTime Date { get; }
+        public string Emotion { get; }
     }
 }

@@ -15,7 +15,11 @@ public partial class Comment
 
     public int IdAuthor { get; set; }
 
+    public short IdEmotion { get; set; }
+
     public virtual User IdAuthorNavigation { get; set; } = null!;
+
+    public virtual Emotion IdEmotionNavigation { get; set; } = null!;
 
     public virtual Film IdFilmNavigation { get; set; } = null!;
 }

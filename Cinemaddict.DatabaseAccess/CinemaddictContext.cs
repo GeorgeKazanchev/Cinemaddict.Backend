@@ -27,6 +27,8 @@ namespace Cinemaddict.DatabaseAccess
 
         public virtual DbSet<Director> Directors { get; set; }
 
+        public virtual DbSet<Emotion> Emotions { get; set; }
+
         public virtual DbSet<Film> Films { get; set; }
 
         public virtual DbSet<Genre> Genres { get; set; }
@@ -72,12 +74,18 @@ namespace Cinemaddict.DatabaseAccess
                 entity.Property(e => e.Content).HasColumnName("content");
                 entity.Property(e => e.Date).HasColumnName("date");
                 entity.Property(e => e.IdAuthor).HasColumnName("id_author");
+                entity.Property(e => e.IdEmotion).HasColumnName("id_emotion");
                 entity.Property(e => e.IdFilm).HasColumnName("id_film");
 
                 entity.HasOne(d => d.IdAuthorNavigation).WithMany(p => p.Comments)
                     .HasForeignKey(d => d.IdAuthor)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("comment_fk_author");
+
+                entity.HasOne(d => d.IdEmotionNavigation).WithMany(p => p.Comments)
+                    .HasForeignKey(d => d.IdEmotion)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("comment_fk_emotion");
 
                 entity.HasOne(d => d.IdFilmNavigation).WithMany(p => p.Comments)
                     .HasForeignKey(d => d.IdFilm)
@@ -96,6 +104,18 @@ namespace Cinemaddict.DatabaseAccess
                 entity.Property(e => e.Id).HasColumnName("id");
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
+                    .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<Emotion>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("emotion_pkey");
+
+                entity.ToTable("emotion");
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
                     .HasColumnName("name");
             });
 

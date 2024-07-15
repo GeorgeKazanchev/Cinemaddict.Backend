@@ -2,8 +2,8 @@
 {
     public class Comment : LocalComment
     {
-        public Comment(int id, string author, string content, DateTime date)
-            : base(content, date)
+        public Comment(int id, string author, string content, DateTime date, string emotion)
+            : base(content, date, emotion)
         {
             Id = id;
             Author = author;
