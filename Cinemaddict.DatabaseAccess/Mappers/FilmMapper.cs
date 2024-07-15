@@ -17,12 +17,13 @@ namespace Cinemaddict.DatabaseAccess.Mappers
             GenreEntity[] genres, ActorEntity[] actors, WriterEntity[] writers, DirectorEntity director, ReleaseInfoEntity releaseInfo)
         {
             var commentsId = comments.Select(c => c.Id).ToArray();
-            var userDetailsDomain = UserDetailsMapper.ToDomain(userDetails);
-            var releaseInfoDomain = ReleaseInfoMapper.ToDomain(releaseInfo);
             var genresNames = genres.Select(g => g.Name).ToArray();
             var actorsNames = actors.Select(a => a.Name).ToArray();
             var writersNames = writers.Select(w => w.Name).ToArray();
             var directorName = director.Name;
+
+            var userDetailsDomain = UserDetailsMapper.ToDomain(userDetails);
+            var releaseInfoDomain = ReleaseInfoMapper.ToDomain(releaseInfo);
 
             var filmInfoDomain = new FilmInfoDomain(film.Title, film.AlternativeTitle, film.TotalRating, film.Poster,
                 film.AgeRating, film.Runtime, film.Description, directorName, genresNames, writersNames, actorsNames, releaseInfoDomain);
