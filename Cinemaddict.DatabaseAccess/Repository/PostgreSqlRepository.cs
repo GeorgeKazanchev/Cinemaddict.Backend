@@ -6,7 +6,7 @@ using UserEntity = Cinemaddict.DatabaseAccess.Entities.User;
 
 namespace Cinemaddict.DatabaseAccess.Repository
 {
-    public class PostgreSqlRepository
+    public class PostgreSqlRepository : IDbRepository
     {
         public PostgreSqlRepository(string connectionString)
         {
@@ -130,6 +130,18 @@ namespace Cinemaddict.DatabaseAccess.Repository
                 db.Comments.Remove(comment);
             }
             db.SaveChanges();
+        }
+
+        public bool CheckMovieExists(int id)
+        {
+            using var db = new CinemaddictContext(ConnectionString);
+            return db.Films.Any(f => f.Id == id);
+        }
+
+        public bool CheckCommentExists(int id)
+        {
+            using var db = new CinemaddictContext(ConnectionString);
+            return db.Comments.Any(c => c.Id == id);
         }
     }
 }
