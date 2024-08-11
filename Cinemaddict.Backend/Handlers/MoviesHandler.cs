@@ -1,5 +1,6 @@
 ﻿using Cinemaddict.Backend.DTOs;
 using Cinemaddict.DatabaseAccess.Repository;
+using Cinemaddict.Domain.Entities;
 
 namespace Cinemaddict.Backend.Handlers
 {
@@ -27,7 +28,33 @@ namespace Cinemaddict.Backend.Handlers
 
         public async Task UpdateMovie(string? filmId, HttpRequest request, HttpResponse response)
         {
-            throw new NotImplementedException();
+            bool isIdCorrect = int.TryParse(filmId, out int id);
+            if (!isIdCorrect)
+            {
+                ErrorsHandler.HandleNotFound(response);
+                return;
+            }
+
+            try
+            {
+                bool filmExists = _repository.CheckMovieExists(id);
+                if (!filmExists)
+                {
+                    ErrorsHandler.HandleNotFound(response);
+                    return;
+                }
+
+                var updatedFilm = await request.ReadFromJsonAsync<Movie>() 
+                    ?? throw new Exception("Failed to get film\'s data from a request.");
+
+                _repository.UpdateMovie(updatedFilm);
+                var film = _repository.ReadMovie(id);
+                await response.WriteAsJsonAsync(new MovieDto(film));
+            }
+            catch (Exception)
+            {
+                ErrorsHandler.HandleInternalServerError(response);
+            }
         }
     }
 }
