@@ -1,4 +1,5 @@
-﻿using Cinemaddict.DatabaseAccess.Repository;
+﻿using Cinemaddict.Backend.DTOs;
+using Cinemaddict.DatabaseAccess.Repository;
 
 namespace Cinemaddict.Backend.Handlers
 {
@@ -16,8 +17,7 @@ namespace Cinemaddict.Backend.Handlers
             try
             {
                 var movies = _repository.ReadMovies();
-                response.StatusCode = 200;
-                await response.WriteAsJsonAsync(movies);
+                await response.WriteAsJsonAsync(movies.Select(m => new MovieDto(m)));
             }
             catch (Exception)
             {

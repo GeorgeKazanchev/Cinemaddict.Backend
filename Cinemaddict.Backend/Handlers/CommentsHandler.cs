@@ -1,4 +1,5 @@
-﻿using Cinemaddict.DatabaseAccess.Repository;
+﻿using Cinemaddict.Backend.DTOs;
+using Cinemaddict.DatabaseAccess.Repository;
 
 namespace Cinemaddict.Backend.Handlers
 {
@@ -26,8 +27,7 @@ namespace Cinemaddict.Backend.Handlers
                 if (filmExists)
                 {
                     var comments = _repository.ReadComments(id);
-                    response.StatusCode = 200;
-                    await response.WriteAsJsonAsync(comments);
+                    await response.WriteAsJsonAsync(comments.Select(c => new CommentDto(c)));
                 }
                 else
                 {
@@ -60,7 +60,6 @@ namespace Cinemaddict.Backend.Handlers
                 if (commentExists)
                 {
                     _repository.DeleteComment(id);
-                    response.StatusCode = 200;
                     //  TODO: Don't we need to write anything to response?
                 }
                 else
