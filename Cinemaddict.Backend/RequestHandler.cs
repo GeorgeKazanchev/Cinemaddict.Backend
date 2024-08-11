@@ -50,7 +50,7 @@ namespace Cinemaddict.Backend
             else if (CommentsPathRegex().IsMatch(path) && request.Method == "DELETE")
             {
                 string? commentId = GetIdFromPath(path);
-                await _commentsHandler.DeleteComment(commentId, response);
+                _commentsHandler.DeleteComment(commentId, response);
             }
             else
             {

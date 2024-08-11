@@ -1,7 +1,9 @@
-﻿using Cinemaddict.DatabaseAccess.Mappers;
+﻿using Cinemaddict.DatabaseAccess.Entities;
+using Cinemaddict.DatabaseAccess.Mappers;
 using Cinemaddict.Domain.Entities;
 using Comment = Cinemaddict.Domain.Entities.Comment;
 using CommentEntity = Cinemaddict.DatabaseAccess.Entities.Comment;
+using ReleaseInfoEntity = Cinemaddict.DatabaseAccess.Entities.ReleaseInfo;
 using UserEntity = Cinemaddict.DatabaseAccess.Entities.User;
 
 namespace Cinemaddict.DatabaseAccess.Repository
@@ -26,14 +28,8 @@ namespace Cinemaddict.DatabaseAccess.Repository
             {
                 var film = films[i];
 
-                var genres = db.Genres.Where(g => g.IdFilms.Any(f => f.Id == film.Id)).ToArray();
-                var actors = db.Actors.Where(a => a.IdFilms.Any(f => f.Id == film.Id)).ToArray();
-                var writers = db.Writers.Where(w => w.IdFilms.Any(f => f.Id == film.Id)).ToArray();
-                var comments = db.Comments.Where(c => c.IdFilm == film.Id).ToArray();
-
-                var director = db.Directors.FirstOrDefault(d => d.Id == film.IdDirector);
-                var userDetails = db.UserDetails.FirstOrDefault(u => u.IdFilm == film.Id);
-                var releaseInfo = db.ReleaseInfos.FirstOrDefault(i => i.Id == film.IdReleaseInfo);
+                ReadMovieAssosiatedData(db, film, out var genres, out var actors, out var writers, out var comments,
+                    out var director, out var userDetails, out var releaseInfo);
 
                 if (director == null) continue;
                 if (userDetails == null) continue;
@@ -43,6 +39,23 @@ namespace Cinemaddict.DatabaseAccess.Repository
             }
 
             return filmsDomain;
+        }
+
+        public Movie ReadMovie(int id)
+        {
+            using var db = new CinemaddictContext(ConnectionString);
+
+            var film = db.Films.FirstOrDefault(f => f.Id == id)
+                ?? throw new Exception("Given film is not found in a database.");
+
+            ReadMovieAssosiatedData(db, film, out var genres, out var actors, out var writers, out var comments,
+                    out var director, out var userDetails, out var releaseInfo);
+
+            if (director == null) throw new Exception("A director of a given film is not found in a database.");
+            if (userDetails == null) throw new Exception("User details of a given film is not found in a database.");
+            if (releaseInfo == null) throw new Exception("Release info of a given film is not found in a database.");
+
+            return FilmMapper.ToDomain(film, comments, userDetails, genres, actors, writers, director, releaseInfo);
         }
 
         public void UpdateMovie(Movie movie)
@@ -132,6 +145,15 @@ namespace Cinemaddict.DatabaseAccess.Repository
             db.SaveChanges();
         }
 
+        public string GetRandomUserName()
+        {
+            using var db = new CinemaddictContext(ConnectionString);
+            var users = db.Users.ToArray();
+            var randomGenerator = new Random();
+            var randomUserIndex = randomGenerator.Next(users.Length);
+            return users[randomUserIndex].Name;
+        }
+
         public bool CheckMovieExists(int id)
         {
             using var db = new CinemaddictContext(ConnectionString);
@@ -142,6 +164,20 @@ namespace Cinemaddict.DatabaseAccess.Repository
         {
             using var db = new CinemaddictContext(ConnectionString);
             return db.Comments.Any(c => c.Id == id);
+        }
+
+        private static void ReadMovieAssosiatedData(CinemaddictContext db, Film film, out Genre[] genres, out Actor[] actors,
+            out Writer[] writers, out CommentEntity[] comments, out Director? director, out UserDetail? userDetails,
+            out ReleaseInfoEntity? releaseInfo)
+        {
+            genres = db.Genres.Where(g => g.IdFilms.Any(f => f.Id == film.Id)).ToArray();
+            actors = db.Actors.Where(a => a.IdFilms.Any(f => f.Id == film.Id)).ToArray();
+            writers = db.Writers.Where(w => w.IdFilms.Any(f => f.Id == film.Id)).ToArray();
+            comments = db.Comments.Where(c => c.IdFilm == film.Id).ToArray();
+
+            director = db.Directors.FirstOrDefault(d => d.Id == film.IdDirector);
+            userDetails = db.UserDetails.FirstOrDefault(u => u.IdFilm == film.Id);
+            releaseInfo = db.ReleaseInfos.FirstOrDefault(i => i.Id == film.IdReleaseInfo);
         }
     }
 }

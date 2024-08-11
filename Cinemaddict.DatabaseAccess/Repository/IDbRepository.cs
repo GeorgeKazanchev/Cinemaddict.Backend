@@ -7,10 +7,12 @@ namespace Cinemaddict.DatabaseAccess.Repository
         public string ConnectionString { get; }
 
         public Movie[] ReadMovies();
+        public Movie ReadMovie(int id);
         public void UpdateMovie(Movie movie);
         public Comment[] ReadComments(int filmId);
         public void CreateComment(LocalComment comment, int filmId, string authorName);
         public void DeleteComment(int id);
+        public string GetRandomUserName();
         public bool CheckMovieExists(int id);
         public bool CheckCommentExists(int id);
     }
