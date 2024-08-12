@@ -28,6 +28,9 @@ namespace Cinemaddict.Backend
                 return;
             }
 
+            response.Headers.AccessControlAllowOrigin = request.Headers.Origin;
+            response.Headers.AccessControlAllowCredentials = "true";
+
             if (path == "/movies" && request.Method == "GET")
             {
                 await _moviesHandler.ReadAllMovies(response);
@@ -51,6 +54,12 @@ namespace Cinemaddict.Backend
             {
                 string? commentId = GetIdFromPath(path);
                 _commentsHandler.DeleteComment(commentId, response);
+            }
+            else if (request.Method == "OPTIONS")
+            {
+                response.Headers.AccessControlAllowMethods = "GET";
+                response.Headers.AccessControlAllowHeaders = "Authorization";
+                response.Headers.AccessControlMaxAge = "86400";
             }
             else
             {
