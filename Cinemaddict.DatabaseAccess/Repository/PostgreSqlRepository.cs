@@ -17,6 +17,8 @@ namespace Cinemaddict.DatabaseAccess.Repository
 
         public string ConnectionString { get; }
 
+        private const string UserName = "Frank Sinatra";    //  UserName is hard-coded in the client app and can't be changed
+
         public Movie[] ReadMovies()
         {
             using var db = new CinemaddictContext(ConnectionString);
@@ -28,7 +30,8 @@ namespace Cinemaddict.DatabaseAccess.Repository
             {
                 var film = films[i];
 
-                ReadMovieAssosiatedData(db, film, out var genres, out var actors, out var writers, out var comments,
+                var userId = GetUserId(UserName);
+                ReadMovieAssosiatedData(db, film, userId, out var genres, out var actors, out var writers, out var comments,
                     out var director, out var userDetails, out var releaseInfo);
 
                 if (director == null) continue;
@@ -48,7 +51,8 @@ namespace Cinemaddict.DatabaseAccess.Repository
             var film = db.Films.FirstOrDefault(f => f.Id == id)
                 ?? throw new Exception("Given film is not found in a database.");
 
-            ReadMovieAssosiatedData(db, film, out var genres, out var actors, out var writers, out var comments,
+            var userId = GetUserId(UserName);
+            ReadMovieAssosiatedData(db, film, userId, out var genres, out var actors, out var writers, out var comments,
                     out var director, out var userDetails, out var releaseInfo);
 
             if (director == null) throw new Exception("A director of a given film is not found in a database.");
@@ -145,6 +149,13 @@ namespace Cinemaddict.DatabaseAccess.Repository
             db.SaveChanges();
         }
 
+        public int GetUserId(string userName)
+        {
+            using var db = new CinemaddictContext(ConnectionString);
+            var user = db.Users.FirstOrDefault(u => u.Name == userName) ?? throw new Exception("Given user is not found in a database.");
+            return user.Id;
+        }
+
         public string GetRandomUserName()
         {
             using var db = new CinemaddictContext(ConnectionString);
@@ -166,9 +177,9 @@ namespace Cinemaddict.DatabaseAccess.Repository
             return db.Comments.Any(c => c.Id == id);
         }
 
-        private static void ReadMovieAssosiatedData(CinemaddictContext db, Film film, out Genre[] genres, out Actor[] actors,
-            out Writer[] writers, out CommentEntity[] comments, out Director? director, out UserDetail? userDetails,
-            out ReleaseInfoEntity? releaseInfo)
+        private static void ReadMovieAssosiatedData(CinemaddictContext db, Film film, int userId, out Genre[] genres,
+            out Actor[] actors, out Writer[] writers, out CommentEntity[] comments, out Director? director,
+            out UserDetail? userDetails, out ReleaseInfoEntity? releaseInfo)
         {
             genres = db.Genres.Where(g => g.IdFilms.Any(f => f.Id == film.Id)).ToArray();
             actors = db.Actors.Where(a => a.IdFilms.Any(f => f.Id == film.Id)).ToArray();
@@ -176,7 +187,7 @@ namespace Cinemaddict.DatabaseAccess.Repository
             comments = db.Comments.Where(c => c.IdFilm == film.Id).ToArray();
 
             director = db.Directors.FirstOrDefault(d => d.Id == film.IdDirector);
-            userDetails = db.UserDetails.FirstOrDefault(u => u.IdFilm == film.Id);
+            userDetails = db.UserDetails.FirstOrDefault(ud => ud.IdFilm == film.Id && ud.IdUser == userId);
             releaseInfo = db.ReleaseInfos.FirstOrDefault(i => i.Id == film.IdReleaseInfo);
         }
     }
