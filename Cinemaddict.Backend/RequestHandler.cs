@@ -21,7 +21,7 @@ namespace Cinemaddict.Backend
             var response = context.Response;
             var path = request.Path;
 
-            var isAuthHeaderCorrect = CheckAuthorizationHeader(request.Headers);
+            var isAuthHeaderCorrect = CheckAuthorizationHeader(request);
             if (!isAuthHeaderCorrect)
             {
                 ErrorsHandler.HandleAuthorizationError(response);
@@ -57,9 +57,7 @@ namespace Cinemaddict.Backend
             }
             else if (request.Method == "OPTIONS")
             {
-                response.Headers.AccessControlAllowMethods = "GET";
-                response.Headers.AccessControlAllowHeaders = "Authorization";
-                response.Headers.AccessControlMaxAge = "86400";
+                HandleCORSPreflightRequest(request, response);
             }
             else
             {
@@ -67,9 +65,21 @@ namespace Cinemaddict.Backend
             }
         }
 
-        private bool CheckAuthorizationHeader(IHeaderDictionary headers)
+        private void HandleCORSPreflightRequest(HttpRequest request, HttpResponse response)
         {
-            var authHeaderExists = headers.TryGetValue("Authorization", out var authHeader);
+            response.Headers.AccessControlAllowMethods = "GET, POST, PUT, DELETE, OPTIONS";
+            response.Headers.AccessControlAllowHeaders = "Authorization, Origin, Content-Type";
+            response.Headers.AccessControlMaxAge = "86400";
+        }
+
+        private bool CheckAuthorizationHeader(HttpRequest request)
+        {
+            if (request.Method == "OPTIONS")
+            {
+                return true;
+            }
+
+            var authHeaderExists = request.Headers.TryGetValue("Authorization", out var authHeader);
 
             if (!authHeaderExists)
             {
