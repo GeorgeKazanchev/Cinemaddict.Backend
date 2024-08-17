@@ -58,8 +58,9 @@ namespace Cinemaddict.Backend.Handlers
                     return;
                 }
 
-                var comment = await request.ReadFromJsonAsync<LocalComment>() 
+                var commentDto = await request.ReadFromJsonAsync<LocalCommentDto>()
                     ?? throw new Exception("Failed to get comment\'s data from a request.");
+                var comment = commentDto.ToDomain();
 
                 var authorName = _repository.GetRandomUserName();
                 _repository.CreateComment(comment, id, authorName);

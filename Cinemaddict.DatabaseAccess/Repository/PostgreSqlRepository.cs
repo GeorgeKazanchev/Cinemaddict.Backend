@@ -109,12 +109,15 @@ namespace Cinemaddict.DatabaseAccess.Repository
             try
             {
                 var author = db.Users.FirstOrDefault(u => u.Name == authorName);
-                author ??= new UserEntity
+                if (author == null)
                 {
-                    Name = authorName
-                };
-                db.Users.Add(author);
-                db.SaveChanges();
+                    author = new UserEntity
+                    {
+                        Name = authorName
+                    };
+                    db.Users.Add(author);
+                    db.SaveChanges();
+                }
 
                 var emotion = db.Emotions.FirstOrDefault(e => e.Name == comment.Emotion)
                     ?? throw new Exception("Given emotion is not found in a database.");
@@ -145,8 +148,8 @@ namespace Cinemaddict.DatabaseAccess.Repository
             if (comment != null)
             {
                 db.Comments.Remove(comment);
+                db.SaveChanges();
             }
-            db.SaveChanges();
         }
 
         public int GetUserId(string userName)
