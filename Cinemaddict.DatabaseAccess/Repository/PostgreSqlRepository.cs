@@ -24,7 +24,7 @@ namespace Cinemaddict.DatabaseAccess.Repository
             using var db = new CinemaddictContext(ConnectionString);
 
             var films = db.Films.ToArray();
-            var filmsDomain = new Movie[films.Length];
+            var filmsDomain = new List<Movie>();
 
             for (int i = 0; i < films.Length; ++i)
             {
@@ -38,10 +38,10 @@ namespace Cinemaddict.DatabaseAccess.Repository
                 if (userDetails == null) continue;
                 if (releaseInfo == null) continue;
 
-                filmsDomain[i] = FilmMapper.ToDomain(film, comments, userDetails, genres, actors, writers, director, releaseInfo);
+                filmsDomain.Add(FilmMapper.ToDomain(film, comments, userDetails, genres, actors, writers, director, releaseInfo));
             }
 
-            return filmsDomain;
+            return filmsDomain.ToArray();
         }
 
         public Movie ReadMovie(int id)
