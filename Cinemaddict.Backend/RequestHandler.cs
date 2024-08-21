@@ -35,6 +35,10 @@ namespace Cinemaddict.Backend
             {
                 await _moviesHandler.ReadAllMovies(response);
             }
+            else if (path == "/movies/sync" && request.Method == "POST")
+            {
+                await _moviesHandler.SyncMovies(request, response);
+            }
             else if (MoviesPathRegex().IsMatch(path) && request.Method == "PUT")
             {
                 string? filmId = GetIdFromPath(path);

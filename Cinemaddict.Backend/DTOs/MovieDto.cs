@@ -16,5 +16,11 @@ namespace Cinemaddict.Backend.DTOs
         public string[] comments { get; }
         public FilmInfoDto film_info { get; }
         public UserDetailsDto user_details { get; }
+
+        public Movie ToDomain()
+        {
+            var commentsIds = comments.Select(c => Convert.ToInt32(c)).ToArray();
+            return new Movie(Convert.ToInt32(id), commentsIds, film_info.ToDomain(), user_details.ToDomain());
+        }
     }
 }

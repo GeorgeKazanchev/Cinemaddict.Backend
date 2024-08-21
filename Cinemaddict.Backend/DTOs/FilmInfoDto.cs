@@ -32,5 +32,11 @@ namespace Cinemaddict.Backend.DTOs
         public string[] writers { get; }
         public string[] actors { get; }
         public ReleaseInfoDto release { get; }
+
+        public FilmInfo ToDomain()
+        {
+            return new FilmInfo(title, alternative_title, total_rating, poster, age_rating, runtime,
+                description, director, genre, writers, actors, release.ToDomain());
+        }
     }
 }

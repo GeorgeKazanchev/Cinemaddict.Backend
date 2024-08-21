@@ -56,5 +56,39 @@ namespace Cinemaddict.Backend.Handlers
                 ErrorsHandler.HandleInternalServerError(response);
             }
         }
+
+        public async Task SyncMovies(HttpRequest request, HttpResponse response)
+        {
+            try
+            {
+                var filmsDto = await request.ReadFromJsonAsync<MovieDto[]>()
+                    ?? throw new Exception("Failed to get films from a request.");
+                var films = filmsDto.Select(f => f.ToDomain());
+
+                var filmsForResponse = new List<MovieDto>();
+                foreach (var updatedFilm in films)
+                {
+                    bool filmExists = _repository.CheckMovieExists(updatedFilm.Id);
+                    if (!filmExists)
+                    {
+                        ErrorsHandler.HandleNotFound(response);
+                        continue;
+                    }
+
+                    _repository.UpdateMovie(updatedFilm);
+                    var film = _repository.ReadMovie(updatedFilm.Id);
+                    filmsForResponse.Add(new MovieDto(film));
+                }
+
+                await response.WriteAsJsonAsync(new
+                {
+                    updated = filmsForResponse.ToArray()
+                });
+            }
+            catch (Exception)
+            {
+                ErrorsHandler.HandleInternalServerError(response);
+            }
+        }
     }
 }

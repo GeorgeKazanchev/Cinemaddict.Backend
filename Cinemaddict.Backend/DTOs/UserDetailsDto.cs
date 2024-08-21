@@ -16,5 +16,10 @@ namespace Cinemaddict.Backend.DTOs
         public bool already_watched { get; }
         public bool favorite { get; }
         public DateTime? watching_date { get; }
+
+        public UserDetails ToDomain()
+        {
+            return new UserDetails(watchlist, already_watched, favorite, watching_date);
+        }
     }
 }
