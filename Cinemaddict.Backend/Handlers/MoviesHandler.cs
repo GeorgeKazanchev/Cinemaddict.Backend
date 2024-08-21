@@ -1,6 +1,5 @@
 ﻿using Cinemaddict.Backend.DTOs;
 using Cinemaddict.DatabaseAccess.Repository;
-using Cinemaddict.Domain.Entities;
 
 namespace Cinemaddict.Backend.Handlers
 {
@@ -44,8 +43,9 @@ namespace Cinemaddict.Backend.Handlers
                     return;
                 }
 
-                var updatedFilm = await request.ReadFromJsonAsync<Movie>() 
+                var updatedFilmDto = await request.ReadFromJsonAsync<MovieDto>() 
                     ?? throw new Exception("Failed to get film\'s data from a request.");
+                var updatedFilm = updatedFilmDto.ToDomain();
 
                 _repository.UpdateMovie(updatedFilm);
                 var film = _repository.ReadMovie(id);
